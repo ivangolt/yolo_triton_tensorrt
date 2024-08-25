@@ -1,0 +1,27 @@
+name: "yolo_model"
+platform: "onnxruntime_onnx"
+max_batch_size: 8
+input [
+  {
+    name: "input"
+    data_type: TYPE_FP32
+    format: FORMAT_NCHW
+    dims: [ 3, 416, 416 ]
+  }
+]
+output [
+  {
+    name: "output"
+    data_type: TYPE_FP32
+    dims: [ 25200, 85 ]  # Adjust based on your YOLO model output
+  }
+]
+instance_group [
+  {
+    kind: KIND_GPU
+  }
+]
+dynamic_batching {
+  preferred_batch_size: [ 1, 2, 4, 8 ]
+  max_queue_delay_microseconds: 100
+}
