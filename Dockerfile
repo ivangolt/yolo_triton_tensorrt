@@ -1,5 +1,9 @@
-FROM nvcr.io/nvidia/tritonserver:23.08-py3
-COPY /path/to/model/repository /models
-COPY /path/to/config.pbtxt /models/simple_model/config.pbtxt
+FROM nvcr.io/nvidia/tritonserver:23.02-py3
 
-MAINTAINER ivangolt <milovidov.999@gmail.com>
+# Install dependencies
+RUN pip install opencv-python && \
+    apt update && \
+    apt install -y libgl1 && \
+    rm -rf /var/lib/apt/lists/*
+
+CMD ["tritonserver", "--model-repository=/models" ]
