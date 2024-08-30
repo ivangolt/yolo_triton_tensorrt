@@ -1,3 +1,4 @@
+import argparse
 import sys
 
 import cv2
@@ -83,3 +84,37 @@ def run_inference(
     detection_scores = results.as_numpy("detection_scores")
     detection_classes = results.as_numpy("detection_classes")
     return num_detections, detection_boxes, detection_scores, detection_classes
+
+
+def main(image_path, model_name, url):
+    triton_client = get_triton_client(url)
+    expected_image_shape = (
+        triton_client.get_model_metadata(model_name).inputs[0].shape[-2:]
+    )
+    original_image, input_image, scale = read_image(image_path, expected_image_shape)
+    num_detections, detection_boxes, detection_scores, detection_classes = (
+        run_inference(model_name, input_image, triton_client)
+    )
+
+    for index in range(num_detections):
+        box = detection_boxes[index]
+
+        draw_bounding_box(
+            original_image,
+            detection_classes[index],
+            detection_scores[index],
+            round(box[0] * scale),
+            round(box[1] * scale),
+            round((box[0] + box[2]) * scale),
+            round((box[1] + box[3]) * scale),
+        )
+    cv2.imwrite("output.jpg", original_image)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--image_path", type=str, default="./assets/bus.jpg")
+    parser.add_argument("--model_name", type=str, default="yolov8_ensemble")
+    parser.add_argument("--url", type=str, default="localhost:8001")
+    args = parser.parse_args()
+    main(args.image_path, args.model_name, args.url)

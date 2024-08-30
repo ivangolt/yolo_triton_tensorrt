@@ -5,8 +5,7 @@ import shutil
 from ultralytics import YOLO
 
 # Define the files to be moved and the destination folder
-files_to_move = ["config.bptxt", "yolov8s.onnx"]
-destination_folder = "1"
+files_to_move = ["yolov8s.onnx", "yolov8n.onnx"]
 
 
 def move_model_to_subfolder(files_to_move: list, file_destination: str):
@@ -17,14 +16,14 @@ def move_model_to_subfolder(files_to_move: list, file_destination: str):
         file_destination (str): end destination for files
     """
     # Create the destination folder if it doesn't exist
-    if not os.path.exists(destination_folder):
-        os.makedirs(destination_folder)
+    if not os.path.exists(file_destination):
+        os.makedirs(file_destination)
 
     # Move each file to the destination folder
     for file in files_to_move:
         if os.path.exists(file):
-            shutil.move(file, os.path.join(destination_folder, file))
-            print(f"Moved {file} to {destination_folder}")
+            shutil.move(file, os.path.join(file_destination, file))
+            print(f"Moved {file} to {file_destination}")
         else:
             print(f"{file} not found!")
 
@@ -82,5 +81,6 @@ if __name__ == "__main__":
     print(f"Model {args.model_name} has been loaded and converted to onnx and tensorrt")
 
     move_model_to_subfolder(
-        files_to_move=files_to_move, file_destination=destination_folder
+        files_to_move=files_to_move,
+        file_destination=f"../yolo_models/{args.model_name[:-3]}/1",
     )
