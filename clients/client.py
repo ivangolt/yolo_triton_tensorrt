@@ -7,14 +7,6 @@ import tritonclient.grpc as grpcclient
 
 
 def get_triton_client(url: str = "localhost:8001"):
-    """function implement triton inference client
-
-    Args:
-        url (_type_, optional): url to endpoint. Defaults to "localhost:8001".
-
-    Returns:
-        _type_: triton client
-    """
     try:
         keepalive_options = grpcclient.KeepAliveOptions(
             keepalive_time_ms=2**31 - 1,
@@ -33,7 +25,10 @@ def get_triton_client(url: str = "localhost:8001"):
 
 def draw_bounding_box(img, class_id, confidence, x, y, x_plus_w, y_plus_h):
     label = f"({class_id}: {confidence:.2f})"
-    color = (0, 255, 0)
+    color = (
+        255,
+        0,
+    )
     cv2.rectangle(img, (x, y), (x_plus_w, y_plus_h), color, 2)
     cv2.putText(img, label, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
@@ -108,12 +103,13 @@ def main(image_path, model_name, url):
             round((box[0] + box[2]) * scale),
             round((box[1] + box[3]) * scale),
         )
+
     cv2.imwrite("output.jpg", original_image)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--image_path", type=str, default="./assets/bus.jpg")
+    parser.add_argument("--image_path", type=str, default="../data/dog.jpg")
     parser.add_argument("--model_name", type=str, default="yolov8_ensemble")
     parser.add_argument("--url", type=str, default="localhost:8001")
     args = parser.parse_args()
