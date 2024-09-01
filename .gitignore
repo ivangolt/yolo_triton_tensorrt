@@ -6,3 +6,8 @@
 models/postprocess/1/__pycache__/model.cpython-38.pyc
 models/yolov8_ensemble/1/model.plan
 models/yolov8_tensorrt/1/model.plan
+/results
+results/output.jpg
+
+utils/__pycache__/yolo_classes.cpython-311.pyc
+utils/__pycache__/__init__.cpython-311.pyc
