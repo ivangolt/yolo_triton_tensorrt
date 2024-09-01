@@ -11,3 +11,5 @@ results/output.jpg
 
 utils/__pycache__/yolo_classes.cpython-311.pyc
 utils/__pycache__/__init__.cpython-311.pyc
+app/__pycache__/app.cpython-311.pyc
+*.pyc
