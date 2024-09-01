@@ -14,9 +14,9 @@ For more information about Triton's Ensemble Models, see their documentation on 
 |   ├── load_model.py            # load model and convert to onnx and tensorrt format and move them to /models repository
 |   ├── yolo_classes.py          # yolo classes names
 ├── data   
-├── clients.py
+├── triton                   # triton model path
 |   ├── client.py                # triton client in python
-├── models                       # triton model path
+├── models                       
 │   ├── postprocess
 │   │   ├── 1
 │   │   │   ├── model.py
