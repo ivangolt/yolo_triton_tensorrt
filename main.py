@@ -25,7 +25,10 @@ def get_triton_client(url: str = "localhost:8001"):
 
 def draw_bounding_box(img, class_id, confidence, x, y, x_plus_w, y_plus_h):
     label = f"({class_id}: {confidence:.2f})"
-    color = (0, 255, 0)
+    color = (
+        255,
+        0,
+    )
     cv2.rectangle(img, (x, y), (x_plus_w, y_plus_h), color, 2)
     cv2.putText(img, label, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
@@ -101,7 +104,7 @@ def main(image_path, model_name, url):
             round((box[1] + box[3]) * scale),
         )
 
-    cv2.imwrite("output.jpg", original_image)
+    cv2.imwrite("./results/output.jpg", original_image)
 
 
 if __name__ == "__main__":

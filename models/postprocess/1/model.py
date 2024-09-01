@@ -1,8 +1,7 @@
-import json
-
-import cv2
 import numpy as np
+import json
 import triton_python_backend_utils as pb_utils
+import cv2
 
 
 class TritonPythonModel:
@@ -27,43 +26,35 @@ class TritonPythonModel:
         """
 
         # You must parse model_config. JSON string is not parsed here
-        self.model_config = model_config = json.loads(args["model_config"])
+        self.model_config = model_config = json.loads(args['model_config'])
 
         # Get OUTPUT0 configuration
         num_detections_config = pb_utils.get_output_config_by_name(
-            model_config, "num_detections"
-        )
+            model_config, "num_detections")
         detection_boxes_config = pb_utils.get_output_config_by_name(
-            model_config, "detection_boxes"
-        )
+            model_config, "detection_boxes")
 
         detection_scores_config = pb_utils.get_output_config_by_name(
-            model_config, "detection_scores"
-        )
+            model_config, "detection_scores")
 
         detection_classes_config = pb_utils.get_output_config_by_name(
-            model_config, "detection_classes"
-        )
+            model_config, "detection_classes")
 
         # Convert Triton types to numpy types
         self.num_detections_dtype = pb_utils.triton_string_to_numpy(
-            num_detections_config["data_type"]
-        )
+            num_detections_config['data_type'])
 
         # Convert Triton types to numpy types
         self.detection_boxes_dtype = pb_utils.triton_string_to_numpy(
-            detection_boxes_config["data_type"]
-        )
+            detection_boxes_config['data_type'])
 
         # Convert Triton types to numpy types
         self.detection_scores_dtype = pb_utils.triton_string_to_numpy(
-            detection_scores_config["data_type"]
-        )
+            detection_scores_config['data_type'])
 
         # Convert Triton types to numpy types
         self.detection_classes_dtype = pb_utils.triton_string_to_numpy(
-            detection_classes_config["data_type"]
-        )
+            detection_classes_config['data_type'])
 
         self.score_threshold = 0.25
         self.nms_threshold = 0.45
@@ -112,23 +103,22 @@ class TritonPythonModel:
             class_ids = []
             for i in range(rows):
                 classes_scores = outputs[0][i][4:]
-                (minScore, maxScore, minClassLoc, (x, maxClassIndex)) = cv2.minMaxLoc(
-                    classes_scores
-                )
+                (minScore, maxScore, minClassLoc, (x, maxClassIndex)
+                 ) = cv2.minMaxLoc(classes_scores)
                 if maxScore >= self.score_threshold:
-                    box = [
-                        outputs[0][i][0] - (0.5 * outputs[0][i][2]),
-                        outputs[0][i][1] - (0.5 * outputs[0][i][3]),
-                        outputs[0][i][2],
-                        outputs[0][i][3],
-                    ]
+                    box = [outputs[0][i][0] -
+                           (0.5 *
+                            outputs[0][i][2]), outputs[0][i][1] -
+                           (0.5 *
+                            outputs[0][i][3]), outputs[0][i][2], outputs[0][i][3]]
                     boxes.append(box)
                     scores.append(maxScore)
                     class_ids.append(maxClassIndex)
 
-            result_boxes = cv2.dnn.NMSBoxes(
-                boxes, scores, self.score_threshold, self.nms_threshold, 0.5
-            )
+            result_boxes = cv2.dnn.NMSBoxes(boxes, scores,
+                                            self.score_threshold,
+                                            self.nms_threshold,
+                                            0.5)
 
             num_detections = 0
             output_boxes = []
@@ -138,10 +128,9 @@ class TritonPythonModel:
                 index = result_boxes[i]
                 box = boxes[index]
                 detection = {
-                    "class_id": class_ids[index],
-                    "confidence": scores[index],
-                    "box": box,
-                }
+                    'class_id': class_ids[index],
+                    'confidence': scores[index],
+                    'box': box}
                 output_boxes.append(box)
                 output_scores.append(scores[index])
                 output_classids.append(class_ids[index])
@@ -150,31 +139,26 @@ class TritonPythonModel:
 
             num_detections = np.array(num_detections)
             num_detections = pb_utils.Tensor(
-                "num_detections", num_detections.astype(num_detections_dtype)
-            )
+                "num_detections", num_detections.astype(num_detections_dtype))
 
             detection_boxes = np.array(output_boxes)
             detection_boxes = pb_utils.Tensor(
-                "detection_boxes", detection_boxes.astype(detection_boxes_dtype)
-            )
+                "detection_boxes", detection_boxes.astype(detection_boxes_dtype))
 
             detection_scores = np.array(output_scores)
             detection_scores = pb_utils.Tensor(
-                "detection_scores", detection_scores.astype(detection_scores_dtype)
-            )
+                "detection_scores", detection_scores.astype(detection_scores_dtype))
             detection_classes = np.array(output_classids)
             detection_classes = pb_utils.Tensor(
-                "detection_classes", detection_classes.astype(detection_classes_dtype)
-            )
+                "detection_classes",
+                detection_classes.astype(detection_classes_dtype))
 
             inference_response = pb_utils.InferenceResponse(
                 output_tensors=[
                     num_detections,
                     detection_boxes,
                     detection_scores,
-                    detection_classes,
-                ]
-            )
+                    detection_classes])
             responses.append(inference_response)
 
         return responses

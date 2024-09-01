@@ -2,3 +2,7 @@
 /data
 *.onnx
 *.pt
+/__pycache__
+models/postprocess/1/__pycache__/model.cpython-38.pyc
+models/yolov8_ensemble/1/model.plan
+models/yolov8_tensorrt/1/model.plan
