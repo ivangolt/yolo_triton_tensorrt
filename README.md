@@ -123,3 +123,7 @@ docker-compose up -d
 ```
 
 after that go to "http://localhost:8501"
+
+Example:
+
+![](docs/image.png)
