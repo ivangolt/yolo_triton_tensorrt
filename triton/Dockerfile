@@ -6,4 +6,4 @@ RUN pip install opencv-python pillow && \
     apt install -y libgl1 && \
     rm -rf /var/lib/apt/lists/*
 
-CMD ["tritonserver", "--model-repository=/models" ]
+CMD ["tritonserver", "--model-repository=../models" ]

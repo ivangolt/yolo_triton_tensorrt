@@ -1,6 +1,6 @@
-# Yolo triton tensorrt
+# Yolo triton tensorrt Fast API Streamlit
 # Overview
-This repository  provides an ensemble model that combines a YOLOv8 model exported from the [Ultralytics](https://github.com/ultralytics/ultralytics) repository with NMS (Non-Maximum Suppression) post-processing for deployment on the Triton Inference Server using a TensorRT backend.
+This repository  provides an ensemble model that combines a YOLOv8 model exported from the [Ultralytics](https://github.com/ultralytics/ultralytics) repository with NMS (Non-Maximum Suppression) post-processing for deployment on the Triton Inference Server using a TensorRT backend, deployment rest api service in FastAPI and frontend in streamlit.
 
 
 For more information about Triton's Ensemble Models, see their documentation on [Architecture.md](https://github.com/triton-inference-server/server/blob/main/docs/user_guide/architecture.md) and some of their [preprocessing examples](https://github.com/triton-inference-server/python_backend/tree/main/examples/preprocessing).
@@ -13,8 +13,17 @@ For more information about Triton's Ensemble Models, see their documentation on 
 ├── utils
 |   ├── load_model.py            # load model and convert to onnx and tensorrt format and move them to /models repository
 |   ├── yolo_classes.py          # yolo classes names
-├── data   
-├── triton                   # triton model path
+├── data
+|
+├── app
+|   ├── Dockerfile               # FastAPI Dockerfile
+|   ├── main.py                  # Main app with FastAPI initializing
+|
+├── frontend
+|   ├── app.py                   # web ui application
+|   ├── Dockerfile               # Dockerfile for streamlit service
+|
+├── triton                       # triton model path
 |   ├── client.py                # triton client in python
 ├── models                       
 │   ├── postprocess
@@ -29,10 +38,11 @@ For more information about Triton's Ensemble Models, see their documentation on 
 │       ├── 1
 │       │   └── model.plan
 │       └── config.pbtxt
+├── docker-compose.yaml          # docker compose for running all parts of application
 └── README.md
 ```
 
-# Quick Start
+# Triton client
 1. Install [Ultralytics](https://github.com/ultralytics/ultralytics) and TritonClient
 ```
 pip install ultralytics tritonclient[all] 
@@ -68,3 +78,48 @@ docker run --gpus all \
     $DOCKER_NAME
 ```
 8. Run the script with `python ./clients/client.py`. The inferred overlay image will be written to `./results/output.jpg`.
+
+# FastAPI
+
+1. Overview
+
+This API provides an endpoint for performing object detection on images using a YOLO-based model deployed on a Triton Inference Server. Users can upload an image, and the API will return the image with bounding boxes drawn around the detected objects.
+
+
+2. Endpoints
+
+GET /: A simple root endpoint that returns a greeting message.
+
+POST /predict/: The primary endpoint that accepts an image file, processes it using a YOLO model, and returns the image with detected objects highlighted.
+
+
+For testing endpoint of FastAPI service
+
+``` curl -X POST "http://localhost:8000/predict/" -H "accept: image/jpeg" -H "Content-Type: multipart/form-data" -F "file=@/path/to/your/image.jpg"
+
+```
+
+# Streamlit 
+
+1. Overview
+
+This Streamlit application provides an interface for performing object detection on images using the YOLOv8 model. Users can upload an image, and the app will display the image with detected objects highlighted. 
+
+
+Run the Streamlit app with the command
+
+```
+streamlit run app.py
+
+```
+
+# Run aplication as service
+
+Run building docker-compose.yaml
+
+```
+docker-compose up -d
+
+```
+
+after that go to "http://localhost:8501"
