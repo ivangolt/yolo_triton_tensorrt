@@ -17,9 +17,7 @@ jobs:
           poetry install --with dev
       - name: Ruff linter
         run: |
-          poetry run ruff check notebooks
-          poetry run ruff check workflows
+          poetry run ruff check .
       - name: Mypy analyse
         run:  |
-          poetry run nbqa mypy notebooks
-          poetry run mypy workflows
+          poetry run mypy .
