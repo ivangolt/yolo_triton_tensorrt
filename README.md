@@ -95,7 +95,11 @@ POST /predict/: The primary endpoint that accepts an image file, processes it us
 
 For testing endpoint of FastAPI service
 
-``` curl -X POST "http://localhost:8000/predict/" -H "accept: image/jpeg" -H "Content-Type: multipart/form-data" -F "file=@/path/to/your/image.jpg"
+``` curl -X 'POST' \
+  'http://127.0.0.1:8000/predict/' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'file=@{image_path};type=image/jpeg'
 
 ```
 
