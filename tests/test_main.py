@@ -77,6 +77,5 @@ def test_predict(bus_image):
         with open("test_output.jpg", "wb") as output_file:
             output_file.write(response.content)
 
-        # You can add more assertions here to validate the contents of the response,
-        # such as verifying that the output image is not empty, etc.
         assert len(response.content) > 0  # Ensure some content is returned
+        assert response.headers["content-type"] == "image/jpeg"

@@ -1,3 +1,4 @@
+import logging
 import tempfile
 
 import cv2
@@ -10,6 +11,9 @@ from triton.client import (
     read_image,
     run_inference,
 )
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -49,7 +53,13 @@ async def predict(file: UploadFile = File(...)):
         num_detections, detection_boxes, detection_scores, detection_classes = (
             run_inference("yolov8_ensemble", input_image, triton_client)
         )
-
+        logger.info(
+            f"Prediction results: \
+            num_detection: {num_detections}, \
+            detection_boxes: {detection_boxes},\
+            detection_scores: {detection_scores}, \
+            detection_classes: {detection_classes}"
+        )
         # Draw bounding boxes on the image
         for index in range(num_detections):
             box = detection_boxes[index]
