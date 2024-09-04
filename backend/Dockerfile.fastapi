@@ -1,0 +1,27 @@
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim
+
+# Set the working directory in the container
+WORKDIR /code
+
+# Copy the FastAPI service code into the container
+COPY app/ /code/app/
+COPY triton/ /code/triton/
+COPY utils/ /code/utils
+
+ENV PYTHONPATH "${PYTHONPATH}:/code"
+ENV PYTHONPATH=/code/app
+ENV PYTHONPATH=/code/triton
+
+
+# Install any necessary dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir fastapi uvicorn opencv-python-headless && \
+    pip install --no-cache-dir tritonclient[all] && \
+    pip install --no-cache-dir python-multipart
+
+# Expose the port the app runs on
+EXPOSE 8080
+
+# Command to run the FastAPI application
+CMD ["uvicorn", "app.main:app",  "--port", "8080"]
