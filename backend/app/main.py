@@ -5,7 +5,7 @@ import cv2
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
-from triton.client import (
+from backend.triton.client import (
     draw_bounding_box,
     get_triton_client,
     read_image,
