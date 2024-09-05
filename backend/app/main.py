@@ -3,8 +3,9 @@ import tempfile
 
 import cv2
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
+from prometheus_fastapi_instrumentator import Instrumentator
 from triton.client import (
     draw_bounding_box,
     get_triton_client,
@@ -12,10 +13,14 @@ from triton.client import (
     run_inference,
 )
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+# Initialize Instrumentator for FastAPI app
+Instrumentator().instrument(app).expose(app, tags=["monitoring"])
 
 
 @app.get("/")
@@ -30,7 +35,17 @@ async def root():
 
 
 @app.post("/predict/")
-async def predict(file: UploadFile = File(...)):
+async def predict(file: UploadFile = File(...), return_json: bool = False):
+    """
+    Perform object detection on the uploaded image.
+
+    Args:
+        file (UploadFile): The image file for prediction.
+        return_json (bool): If true, return only the raw prediction results.
+
+    Returns:
+        FileResponse or JSONResponse: The image with bounding boxes or raw prediction results.
+    """
     try:
         # Save the uploaded file to a temporary location
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
@@ -56,10 +71,34 @@ async def predict(file: UploadFile = File(...)):
         logger.info(
             f"Prediction results: \
             num_detection: {num_detections}, \
-            detection_boxes: {detection_boxes},\
             detection_scores: {detection_scores}, \
             detection_classes: {detection_classes}"
         )
+
+        # If return_json is set to True, return the results in JSON format
+        if return_json:
+            predictions = []
+            for index in range(num_detections):
+                box = detection_boxes[index]
+                prediction = {
+                    "class": int(detection_classes[index]),  # Convert to Python int
+                    "score": float(detection_scores[index]),  # Convert to Python float
+                    "box": {
+                        "x_min": round(box[0] * scale),
+                        "y_min": round(box[1] * scale),
+                        "x_max": round((box[0] + box[2]) * scale),
+                        "y_max": round((box[1] + box[3]) * scale),
+                    },
+                }
+                predictions.append(prediction)
+
+            return JSONResponse(
+                content={
+                    "num_detections": int(num_detections),
+                    "predictions": predictions,
+                }
+            )
+
         # Draw bounding boxes on the image
         for index in range(num_detections):
             box = detection_boxes[index]
