@@ -26,7 +26,7 @@ if uploaded_file is not None:
             try:
                 # Send the image to the FastAPI server for prediction
                 files = {"file": uploaded_file.getvalue()}
-                response = requests.post("http://localhost:8000/predict/", files=files)
+                response = requests.post("http://localhost:8080/predict/", files=files)
 
                 # Check if the response is successful
                 if response.status_code == 200:

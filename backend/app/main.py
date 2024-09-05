@@ -26,7 +26,7 @@ async def root():
     Returns:
         dict: A simple greeting message.
     """
-    return {"message": "Hello World"}
+    return {"message": "Yolo triton service"}
 
 
 @app.post("/predict/")
