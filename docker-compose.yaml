@@ -1,40 +1,47 @@
 version: '3.8'
 
 services:
-
-  triton:
-    container_name: fast_api
+  fastapi:
     build:
       context: .
-      dockerfile: app/Dockerfile 
+      dockerfile: backend/Dockerfile.fastapi
+    ports:
+      - "8080:8080"
     volumes:
-      - /triton:/triton
+      - ./backend/app:/code/app
+      - ./backend/triton:/code/triton
+      - ./backend/utils:/code/utils
+    environment:
+      - PYTHONPATH=/code:/code/app:/code/triton
+    depends_on:
+      - triton
+    networks:
+      - ml-network
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    networks:
+      - ml-network
+    depends_on:
+      - fastapi
+
+  triton:
+    build:
+      context: .
+      dockerfile: backend/triton/Dockerfile
+    volumes:
+      - ./models:/models
     ports:
       - "8000:8000"
       - "8001:8001"
       - "8002:8002"
+    networks:
+      - ml-network
 
-  backend:
-    container_name: fast_api
-    build:
-      context: .
-      dockerfile: app/Dockerfile
-    ports:
-      - "8000:8000"
-    networks:
-      - app-network
-    
-  
-  frontend:
-    container_name: frontend
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    ports:
-      - "8501:8501"
-    networks:
-      - app-network
-      
 networks:
-  app-network:
+  ml-network:
     driver: bridge
