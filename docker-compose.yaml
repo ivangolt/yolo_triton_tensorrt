@@ -1,16 +1,14 @@
-version: '3.8'
-
 services:
-  fastapi:
+  fastapi_api:
     build:
-      context: .
-      dockerfile: backend/Dockerfile.fastapi
+      context: ./backend
+      dockerfile: Dockerfile.fastapi
     ports:
       - "8080:8080"
     volumes:
-      - ./backend/app:/code/app
-      - ./backend/triton:/code/triton
-      - ./backend/utils:/code/utils
+      - app:/code/app
+      - triton:/code/triton
+      - utils:/code/utils
     environment:
       - PYTHONPATH=/code:/code/app:/code/triton
     depends_on:
@@ -20,27 +18,35 @@ services:
 
   streamlit:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile.streamlit
+      context: ./frontend
+      dockerfile: Dockerfile.streamlit
     ports:
       - "8501:8501"
     networks:
       - ml-network
     depends_on:
-      - fastapi
+      - fastapi_api
 
   triton:
     build:
-      context: .
-      dockerfile: backend/triton/Dockerfile
+      context: ./backend
+      dockerfile: triton/Dockerfile
     volumes:
-      - ./models:/models
+      - /models:/models
     ports:
       - "8000:8000"
       - "8001:8001"
       - "8002:8002"
     networks:
       - ml-network
+
+  # deploy:
+  #   resourses:
+  #     reservations:
+  #       devices:
+  #         - driver: nvidia
+  #         - capabilities: [gpu]
+
 
   prometheus:
     image: prom/prometheus:latest
@@ -69,5 +75,13 @@ services:
     restart: unless-stopped
 
 networks:
+  ml-network:
+    driver: bridge
   monitoring:
     driver: bridge
+
+volumes:
+  grafana_data:
+  app:
+  triton:
+  utils:

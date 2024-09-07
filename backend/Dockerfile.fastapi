@@ -18,7 +18,9 @@ ENV PYTHONPATH=/code/triton
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir fastapi uvicorn opencv-python-headless && \
     pip install --no-cache-dir tritonclient[all] && \
-    pip install --no-cache-dir python-multipart
+    pip install --no-cache-dir python-multipart && \
+    pip install --no-cache-dir prometheus_fastapi_instrumentator
+
 
 # Expose the port the app runs on
 EXPOSE 8080
