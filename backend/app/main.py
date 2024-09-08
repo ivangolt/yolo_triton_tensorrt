@@ -4,7 +4,6 @@ import tempfile
 import cv2
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
-
 from prometheus_fastapi_instrumentator import Instrumentator
 from triton.client import (
     draw_bounding_box,
@@ -12,7 +11,6 @@ from triton.client import (
     read_image,
     run_inference,
 )
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
