@@ -3,6 +3,7 @@ import tempfile
 
 import cv2
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 from triton.client import (
@@ -17,6 +18,14 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Список доменов, для которых разрешены запросы
+    allow_credentials=True,
+    allow_methods=["*"],  # Разрешенные методы запросов
+    allow_headers=["*"],  # Разрешенные заголовки
+)
 # Initialize Instrumentator for FastAPI app
 Instrumentator().instrument(app).expose(app, tags=["monitoring"])
 
